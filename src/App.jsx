@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "./lib/shopify";
 import ProductCard from "./components/ProductCard";
+import Cart from "./components/Cart";
+import { useCart } from "./context/CartContext";
 import "./App.css";
-import { useCart } from "./context/CartContext.jsx";
 
 function App() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const { cartQuantity } = useCart();
 
   useEffect(() => {
-    async function cargarProductos() {
+    async function loadProducts() {
       try {
         const data = await getProducts();
         setProducts(data);
@@ -23,12 +25,10 @@ function App() {
       }
     }
 
-    cargarProductos();
+    loadProducts();
   }, []);
 
-  if (loading) {
-    return <h2>Cargando productos...</h2>;
-  }
+  if (loading) return <h2>Cargando productos...</h2>;
 
   if (error) {
     return (
@@ -43,11 +43,12 @@ function App() {
     <>
       <header className="header">
         <h1>G Store</h1>
-
         <nav>
           <a href="#">Inicio</a>
           <a href="#productos">Productos</a>
-          <button>Carrito ({cartQuantity})</button>
+          <button onClick={() => setIsCartOpen(true)}>
+            Carrito ({cartQuantity})
+          </button>
         </nav>
       </header>
 
@@ -59,7 +60,6 @@ function App() {
 
         <section id="productos">
           <h2>Productos</h2>
-
           <div className="products-grid">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
@@ -67,6 +67,8 @@ function App() {
           </div>
         </section>
       </main>
+
+      {isCartOpen && <Cart onClose={() => setIsCartOpen(false)} />}
     </>
   );
 }
