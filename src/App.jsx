@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { getProducts } from "./lib/shopify";
 import ProductCard from "./components/ProductCard";
 import "./App.css";
+import { useCart } from "./context/CartContext.jsx";
 
 function App() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { cartQuantity } = useCart();
 
   useEffect(() => {
     async function cargarProductos() {
@@ -45,7 +47,7 @@ function App() {
         <nav>
           <a href="#">Inicio</a>
           <a href="#productos">Productos</a>
-          <button>Carrito</button>
+          <button>Carrito ({cartQuantity})</button>
         </nav>
       </header>
 

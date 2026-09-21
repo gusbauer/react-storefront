@@ -13,12 +13,13 @@ export async function getProducts() {
           availableForSale
           variants(first: 1) {
             nodes {
-              price {
-                amount
+                id
+                price {
+                    amount
                 currencyCode
-              }
-            }
-          }
+    }
+  }
+}
         }
       }
     }

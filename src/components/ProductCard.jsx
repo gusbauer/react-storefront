@@ -1,4 +1,8 @@
+import { useCart } from "../context/CartContext.jsx";
+
 function ProductCard({ product }) {
+  const { addToCart } = useCart();
+
   const variant = product.variants.nodes[0];
 
   return (
@@ -11,7 +15,12 @@ function ProductCard({ product }) {
 
       <p>{product.availableForSale ? "Disponible" : "Agotado"}</p>
 
-      <button disabled={!product.availableForSale}>Añadir al carrito</button>
+      <button
+        disabled={!product.availableForSale}
+        onClick={() => addToCart(product)}
+      >
+        Añadir al carrito
+      </button>
     </article>
   );
 }
