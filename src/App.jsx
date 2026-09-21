@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "./lib/shopify";
+import ProductCard from "./components/ProductCard";
+import "./App.css";
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -36,28 +38,34 @@ function App() {
   }
 
   return (
-    <main>
-      <h1>React Storefront</h1>
-      <p>E-Commerce Headless conectado con Shopify</p>
+    <>
+      <header className="header">
+        <h1>G Store</h1>
 
-      <h2>Productos</h2>
+        <nav>
+          <a href="#">Inicio</a>
+          <a href="#productos">Productos</a>
+          <button>Carrito</button>
+        </nav>
+      </header>
 
-      {products.map((product) => {
-        const variant = product.variants.nodes[0];
+      <main>
+        <section className="hero">
+          <h2>React Storefront</h2>
+          <p>E-Commerce Headless conectado con Shopify</p>
+        </section>
 
-        return (
-          <div key={product.id}>
-            <h3>{product.title}</h3>
+        <section id="productos">
+          <h2>Productos</h2>
 
-            <p>
-              Precio: {variant?.price.amount} {variant?.price.currencyCode}
-            </p>
-
-            <p>Disponible: {product.availableForSale ? "Sí" : "No"}</p>
+          <div className="products-grid">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
-        );
-      })}
-    </main>
+        </section>
+      </main>
+    </>
   );
 }
 
