@@ -54,7 +54,6 @@ app.post("/api/checkout", (req, res) => {
     // 2. Calcular total
     const total = cart.reduce((sum, item) => {
       const price = Number(item.variants?.nodes?.[0]?.price?.amount);
-
       const quantity = Number(item.quantity);
 
       if (
@@ -84,18 +83,14 @@ app.post("/api/checkout", (req, res) => {
 
       items: cart.map((item) => ({
         productId: item.id,
-
         variantId: item.variants?.nodes?.[0]?.id,
-
         title: item.title,
-
         quantity: item.quantity,
-
         unitPrice: item.variants?.nodes?.[0]?.price?.amount,
       })),
     };
 
-    // AQUÍ sí existen orderId y order
+    // Guardar pedido con estado inicial
     orders.set(orderId, {
       ...order,
       status: "PENDING",
@@ -105,23 +100,14 @@ app.post("/api/checkout", (req, res) => {
     // 4. Parámetros Redsys
     const redsysParameters = {
       DS_MERCHANT_AMOUNT: String(amountInCents),
-
       DS_MERCHANT_ORDER: orderId,
-
       DS_MERCHANT_MERCHANTCODE: process.env.REDSYS_MERCHANT_CODE,
-
       DS_MERCHANT_CURRENCY: "978",
-
       DS_MERCHANT_TRANSACTIONTYPE: "0",
-
       DS_MERCHANT_TERMINAL: process.env.REDSYS_TERMINAL,
-
       DS_MERCHANT_URLOK: `http://localhost:5173/?payment=ok&order=${orderId}`,
-
       DS_MERCHANT_URLKO: `http://localhost:5173/?payment=ko&order=${orderId}`,
-
       DS_MERCHANT_MERCHANTNAME: "G Store",
-
       DS_MERCHANT_PRODUCTDESCRIPTION: "Compra G Store",
     };
 
@@ -136,9 +122,7 @@ app.post("/api/checkout", (req, res) => {
     // 6. Firma
     const signature = createMerchantSignature({
       secretKey: process.env.REDSYS_SECRET_KEY,
-
       order: orderId,
-
       merchantParameters,
     });
 
@@ -147,18 +131,12 @@ app.post("/api/checkout", (req, res) => {
     // 7. Respuesta para React
     return res.status(200).json({
       ok: true,
-
       message: "Pedido preparado correctamente",
-
       order,
-
       payment: {
         url: process.env.REDSYS_URL,
-
         Ds_SignatureVersion: "HMAC_SHA512_V2",
-
         Ds_MerchantParameters: merchantParameters,
-
         Ds_Signature: signature,
       },
     });
@@ -178,33 +156,25 @@ app.post("/api/checkout", (req, res) => {
 
 app.post(
   "/api/redsys/notification",
-
-  express.urlencoded({
-    extended: false,
-  }),
-
+  express.urlencoded({ extended: false }),
   (req, res) => {
     try {
       const { Ds_MerchantParameters, Ds_Signature } = req.body;
 
       if (!Ds_MerchantParameters || !Ds_Signature) {
         console.error("Notificación Redsys incompleta");
-
         return res.sendStatus(400);
       }
 
       // 1. Verificar firma
       const validSignature = verifyMerchantSignature({
         secretKey: process.env.REDSYS_SECRET_KEY,
-
         merchantParameters: Ds_MerchantParameters,
-
         receivedSignature: Ds_Signature,
       });
 
       if (!validSignature) {
         console.error("Firma Redsys inválida");
-
         return res.sendStatus(400);
       }
 
@@ -213,38 +183,57 @@ app.post(
 
       console.log("Notificación Redsys válida:", payment);
 
-      // 3. Comprobar resultado
-      const responseCode = Number(payment.Ds_Response);
-
-      const paymentApproved = responseCode >= 0 && responseCode <= 99;
-
-      // 4. Buscar pedido
+      // 3. Comprobar que el pedido existe
       const existingOrder = orders.get(payment.Ds_Order);
 
-      if (existingOrder) {
-        orders.set(payment.Ds_Order, {
-          ...existingOrder,
-
-          status: paymentApproved ? "PAID" : "REJECTED",
-
-          redsysResponse: payment.Ds_Response,
-
-          authorisationCode: payment.Ds_AuthorisationCode,
-
-          updatedAt: new Date().toISOString(),
-        });
+      if (!existingOrder) {
+        console.error("Pedido desconocido:", payment.Ds_Order);
+        return res.sendStatus(400);
       }
 
-      if (paymentApproved) {
-        console.log(`✅ PEDIDO ${payment.Ds_Order}: PAGADO`);
-      } else {
-        console.log(`❌ PEDIDO ${payment.Ds_Order}: RECHAZADO`);
+      // 4. Comprobar que los datos coinciden
+      const matches =
+        String(payment.Ds_Amount) === existingOrder.amountInCents &&
+        String(payment.Ds_Currency) === existingOrder.currency &&
+        String(payment.Ds_MerchantCode) === process.env.REDSYS_MERCHANT_CODE &&
+        String(payment.Ds_Terminal) === process.env.REDSYS_TERMINAL &&
+        String(payment.Ds_TransactionType) === existingOrder.transactionType;
+
+      if (!matches) {
+        console.error("Los datos del pago no coinciden con el pedido");
+        return res.sendStatus(400);
       }
+
+      // 5. Evitar procesar varias veces un pago ya confirmado
+      if (existingOrder.status === "PAID") {
+        console.log("Notificación duplicada:", payment.Ds_Order);
+        return res.sendStatus(200);
+      }
+
+      // 6. Comprobar el código de respuesta
+      const responseCode = String(payment.Ds_Response ?? "");
+
+      const paymentApproved =
+        /^\d{4}$/.test(responseCode) &&
+        Number(responseCode) >= 0 &&
+        Number(responseCode) <= 99;
+
+      // 7. Actualizar el pedido
+      const updatedOrder = {
+        ...existingOrder,
+        status: paymentApproved ? "PAID" : "REJECTED",
+        redsysResponse: responseCode,
+        authorisationCode: payment.Ds_AuthorisationCode ?? null,
+        updatedAt: new Date().toISOString(),
+      };
+
+      orders.set(payment.Ds_Order, updatedOrder);
+
+      console.log(`PEDIDO ${payment.Ds_Order}: ${updatedOrder.status}`);
 
       return res.sendStatus(200);
     } catch (error) {
       console.error("Error procesando Redsys:", error);
-
       return res.sendStatus(500);
     }
   },
