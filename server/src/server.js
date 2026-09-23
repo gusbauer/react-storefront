@@ -182,7 +182,7 @@ app.post(
 
       console.log("Notificación Redsys válida:", payment);
 
-      // 3. Buscar el pedido en SQLite
+      // 1. Buscar el pedido en SQLite.
       const existingOrder = getOrder(payment.Ds_Order);
 
       if (!existingOrder) {
@@ -190,7 +190,7 @@ app.post(
         return res.sendStatus(400);
       }
 
-      // 4. Validar los datos recibidos
+      // 2. Validar los datos recibidos.
       const matches =
         String(payment.Ds_Amount) === String(existingOrder.amountInCents) &&
         String(payment.Ds_Currency) === existingOrder.currency &&
@@ -203,15 +203,47 @@ app.post(
         return res.sendStatus(400);
       }
 
-      // 5. Evitar volver a procesar pedidos finalizados
+      // 3. Evitar volver a procesar pedidos finalizados.
       if (existingOrder.status !== "PENDING") {
         console.log(
           "Pedido ya procesado:",
           payment.Ds_Order,
           existingOrder.status,
         );
+
         return res.sendStatus(200);
       }
+
+      // 4. Comprobar el resultado de Redsys.
+      const responseCode = String(payment.Ds_Response ?? "");
+
+      if (!/^\d{4}$/.test(responseCode)) {
+        console.error("Código de respuesta inválido");
+        return res.sendStatus(400);
+      }
+
+      const paymentApproved =
+        Number(responseCode) >= 0 && Number(responseCode) <= 99;
+
+      const newStatus = paymentApproved ? "PAID" : "REJECTED";
+
+      // 5. Guardar el resultado en SQLite.
+      const updated = updatePaymentStatus(
+        payment.Ds_Order,
+        newStatus,
+        responseCode,
+        payment.Ds_AuthorisationCode ?? null,
+      );
+
+      if (!updated) {
+        console.error("El pedido ya no está pendiente:", payment.Ds_Order);
+
+        return res.sendStatus(200);
+      }
+
+      console.log(`PEDIDO ${payment.Ds_Order}: ${newStatus} (SQLite)`);
+
+      return res.sendStatus(200);
 
       // 6. Comprobar el resultado de Redsys
       const responseCode = String(payment.Ds_Response ?? "");
