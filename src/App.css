@@ -205,3 +205,35 @@ body:has(.cart-overlay) {
     font-size: 1.2rem;
   }
 }
+.payment-message {
+  padding: 16px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.payment-success {
+  background: #e8f7ec;
+  border: 1px solid #9ad5a8;
+}
+
+.payment-error {
+  background: #fdeaea;
+  border: 1px solid #e1a1a1;
+}
+.payment-message {
+  padding: 16px;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.payment-success {
+  background: #e8f7ec;
+  border: 1px solid #9ad5a8;
+}
+
+.payment-error {
+  background: #fdeaea;
+  border: 1px solid #e1a1a1;
+}

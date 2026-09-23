@@ -11,6 +11,10 @@ function App() {
   const [error, setError] = useState(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { cartQuantity } = useCart();
+  const params = new URLSearchParams(window.location.search);
+
+  const paymentStatus = params.get("payment");
+  const returnedOrderId = params.get("order");
 
   useEffect(() => {
     async function loadProducts() {
@@ -51,6 +55,17 @@ function App() {
           </button>
         </nav>
       </header>
+      {paymentStatus === "ok" && (
+        <div className="payment-message payment-success">
+          Pago completado. Verificando pedido {returnedOrderId}...
+        </div>
+      )}
+
+      {paymentStatus === "ko" && (
+        <div className="payment-message payment-error">
+          El pago no se ha podido completar.
+        </div>
+      )}
 
       <main>
         <section className="hero">
