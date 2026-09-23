@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import { saveOrder } from "./orderRepository.js";
+import { saveOrder, getOrder, updatePaymentStatus } from "./orderRepository.js";
 
 import {
   createMerchantParameters,
@@ -11,7 +11,6 @@ import {
 } from "./redsys.js";
 
 const app = express();
-const orders = new Map();
 
 const PORT = process.env.PORT || 3001;
 
@@ -74,13 +73,15 @@ app.post("/api/checkout", (req, res) => {
     // Pedido de máximo 12 caracteres
     const orderId = String(Date.now()).slice(-12);
 
-    // 3. Crear pedido interno
+    // 3. Crear pedido interno (CON status y createdAt)
     const order = {
       orderId,
       amount: total.toFixed(2),
       amountInCents: String(amountInCents),
       currency: "978",
       transactionType: "0",
+      status: "PENDING",
+      createdAt: new Date().toISOString(),
 
       items: cart.map((item) => ({
         productId: item.id,
@@ -90,13 +91,6 @@ app.post("/api/checkout", (req, res) => {
         unitPrice: item.variants?.nodes?.[0]?.price?.amount,
       })),
     };
-
-    // Guardar pedido con estado inicial
-    orders.set(orderId, {
-      ...order,
-      status: "PENDING",
-      createdAt: new Date().toISOString(),
-    });
 
     // 4. Parámetros Redsys
     const redsysParameters = {
@@ -126,14 +120,14 @@ app.post("/api/checkout", (req, res) => {
       order: orderId,
       merchantParameters,
     });
-    // Guardar permanentemente el pedido y sus productos.
+
+    // 7. Guardar permanentemente el pedido y sus productos en SQLite
     saveOrder(order);
 
     console.log(`Pedido ${orderId} guardado en SQLite`);
-
     console.log("Pedido preparado:", order);
 
-    // 7. Respuesta para React
+    // 8. Respuesta para React
     return res.status(200).json({
       ok: true,
       message: "Pedido preparado correctamente",
@@ -188,53 +182,64 @@ app.post(
 
       console.log("Notificación Redsys válida:", payment);
 
-      // 3. Comprobar que el pedido existe
-      const existingOrder = orders.get(payment.Ds_Order);
+      // 3. Buscar el pedido en SQLite
+      const existingOrder = getOrder(payment.Ds_Order);
 
       if (!existingOrder) {
         console.error("Pedido desconocido:", payment.Ds_Order);
         return res.sendStatus(400);
       }
 
-      // 4. Comprobar que los datos coinciden
+      // 4. Validar los datos recibidos
       const matches =
-        String(payment.Ds_Amount) === existingOrder.amountInCents &&
+        String(payment.Ds_Amount) === String(existingOrder.amountInCents) &&
         String(payment.Ds_Currency) === existingOrder.currency &&
         String(payment.Ds_MerchantCode) === process.env.REDSYS_MERCHANT_CODE &&
         String(payment.Ds_Terminal) === process.env.REDSYS_TERMINAL &&
         String(payment.Ds_TransactionType) === existingOrder.transactionType;
 
       if (!matches) {
-        console.error("Los datos del pago no coinciden con el pedido");
+        console.error("Los datos no coinciden con el pedido");
         return res.sendStatus(400);
       }
 
-      // 5. Evitar procesar varias veces un pago ya confirmado
-      if (existingOrder.status === "PAID") {
-        console.log("Notificación duplicada:", payment.Ds_Order);
+      // 5. Evitar volver a procesar pedidos finalizados
+      if (existingOrder.status !== "PENDING") {
+        console.log(
+          "Pedido ya procesado:",
+          payment.Ds_Order,
+          existingOrder.status,
+        );
         return res.sendStatus(200);
       }
 
-      // 6. Comprobar el código de respuesta
+      // 6. Comprobar el resultado de Redsys
       const responseCode = String(payment.Ds_Response ?? "");
 
+      if (!/^\d{4}$/.test(responseCode)) {
+        console.error("Código de respuesta inválido");
+        return res.sendStatus(400);
+      }
+
       const paymentApproved =
-        /^\d{4}$/.test(responseCode) &&
-        Number(responseCode) >= 0 &&
-        Number(responseCode) <= 99;
+        Number(responseCode) >= 0 && Number(responseCode) <= 99;
 
-      // 7. Actualizar el pedido
-      const updatedOrder = {
-        ...existingOrder,
-        status: paymentApproved ? "PAID" : "REJECTED",
-        redsysResponse: responseCode,
-        authorisationCode: payment.Ds_AuthorisationCode ?? null,
-        updatedAt: new Date().toISOString(),
-      };
+      const newStatus = paymentApproved ? "PAID" : "REJECTED";
 
-      orders.set(payment.Ds_Order, updatedOrder);
+      // 7. Guardar el resultado en SQLite
+      const updated = updatePaymentStatus(
+        payment.Ds_Order,
+        newStatus,
+        responseCode,
+        payment.Ds_AuthorisationCode ?? null,
+      );
 
-      console.log(`PEDIDO ${payment.Ds_Order}: ${updatedOrder.status}`);
+      if (!updated) {
+        console.error("El pedido ya no está pendiente:", payment.Ds_Order);
+        return res.sendStatus(200);
+      }
+
+      console.log(`PEDIDO ${payment.Ds_Order}: ${newStatus} (SQLite)`);
 
       return res.sendStatus(200);
     } catch (error) {
@@ -249,7 +254,7 @@ app.post(
 // ===============================
 
 app.get("/api/orders/:orderId", (req, res) => {
-  const order = orders.get(req.params.orderId);
+  const order = getOrder(req.params.orderId);
 
   if (!order) {
     return res.status(404).json({
