@@ -177,3 +177,35 @@ export function updatePaymentStatus(
 
   return result.changes === 1;
 }
+// Obtener los productos de un pedido.
+const selectOrderItems = db.prepare(`
+  SELECT
+    id,
+    product_id AS productId,
+    variant_id AS variantId,
+    title,
+    quantity,
+    unit_price_cents AS unitPriceCents
+  FROM order_items
+  WHERE order_id = ?
+  ORDER BY id ASC
+`);
+
+// Obtener un pedido junto con sus productos.
+export function getOrderWithItems(orderId) {
+  const order = getOrder(orderId);
+
+  if (!order) {
+    return null;
+  }
+
+  const items = selectOrderItems.all(orderId).map((item) => ({
+    ...item,
+    subtotalCents: item.unitPriceCents * item.quantity,
+  }));
+
+  return {
+    ...order,
+    items,
+  };
+}

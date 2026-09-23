@@ -1,7 +1,12 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import { saveOrder, getOrder, updatePaymentStatus } from "./orderRepository.js";
+import {
+  saveOrder,
+  getOrder,
+  getOrderWithItems,
+  updatePaymentStatus,
+} from "./orderRepository.js";
 
 import {
   createMerchantParameters,
@@ -285,8 +290,12 @@ app.post(
 // CONSULTAR PEDIDO
 // ===============================
 
+// ===============================
+// CONSULTAR PEDIDO Y PRODUCTOS
+// ===============================
+
 app.get("/api/orders/:orderId", (req, res) => {
-  const order = getOrder(req.params.orderId);
+  const order = getOrderWithItems(req.params.orderId);
 
   if (!order) {
     return res.status(404).json({
