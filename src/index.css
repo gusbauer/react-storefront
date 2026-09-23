@@ -1,8 +1,934 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+/* ======================================
+   1. CONFIGURACIÓN GENERAL
+====================================== */
+
+:root {
+  font-family: "DM Sans", sans-serif;
+  color: #24221e;
+  background: #faf9f6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
 * {
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
+  min-width: 320px;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#root,
+.storefront {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.storefront {
+  overflow-x: clip;
+}
+
+/* ======================================
+   2. BARRA SUPERIOR Y NAVEGACIÓN
+====================================== */
+
+.announcement {
+  padding: 12px 20px;
+  color: #f8f5ef;
+  background: #24221e;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+}
+
+.site-header {
+  min-height: 86px;
+  padding: 15px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  background: #faf9f6;
+  border-bottom: 1px solid #e9e5de;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  font-family: "Manrope", sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -3px;
+}
+
+.brand > span {
+  color: #9f7850;
+}
+
+.brand small {
+  margin-left: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 3px;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+}
+
+.main-nav a {
+  font-size: 13px;
+  font-weight: 700;
+  transition: color 0.2s;
+}
+
+.main-nav a:hover {
+  color: #9f7850;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 130px;
+}
+
+.header-cart-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 16px;
+  border: 1px solid #24221e;
+  border-radius: 3px;
+  background: transparent;
+  color: #24221e;
+  font-size: 13px;
+  font-weight: 700;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.header-cart-button:hover {
+  background: #24221e;
+  color: white;
+}
+
+.cart-count {
+  min-width: 23px;
+  height: 23px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #9f7850;
+  color: white;
+  font-size: 11px;
+}
+
+/* ======================================
+   3. PORTADA
+====================================== */
+
+.hero {
+  min-height: 610px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: #efeae1;
+}
+
+.hero-content {
+  min-height: 610px;
+  padding: 90px 8% 50px 12%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+}
+
+.hero h1 {
+  margin: 34px 0 24px;
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(55px, 7vw, 110px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -6px;
+}
+
+.hero h1 em {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -5px;
+}
+
+.hero-content > p {
+  max-width: 360px;
+  color: #625e57;
+  font-size: 16px;
+  line-height: 1.9;
+}
+
+.btn-primary {
+  min-height: 56px;
+  margin-top: 26px;
+  padding: 0 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 45px;
+  background: #24221e;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  transition:
+    background 0.2s,
+    transform 0.2s;
+}
+
+.btn-primary:hover {
+  background: #9f7850;
+  transform: translateY(-2px);
+}
+
+.btn-primary span {
+  font-size: 19px;
+}
+
+.hero-footnote {
+  margin-top: auto;
+  padding-top: 50px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+/* Gráfico decorativo de la portada */
+
+.hero-art {
+  position: relative;
+  min-height: 610px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #c9bcab;
+}
+
+.hero-art::before {
+  position: absolute;
+  inset: 35px;
+  border: 1px solid rgb(255 255 255 / 45%);
+  content: "";
+}
+
+.art-ring {
+  position: absolute;
+  width: min(32vw, 410px);
+  aspect-ratio: 1;
+  border: 1px solid rgb(255 255 255 / 50%);
+  border-radius: 50%;
+}
+
+.art-ring::after {
+  position: absolute;
+  inset: 40px;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 50%;
+  content: "";
+}
+
+.art-letter {
+  z-index: 1;
+  margin-bottom: 35px;
+  color: #eee8dc;
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(160px, 23vw, 330px);
+  font-weight: 800;
+  letter-spacing: -28px;
+}
+
+.art-label {
+  position: absolute;
+  bottom: 55px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 4px;
+}
+
+/* ======================================
+   4. FRANJA DE BENEFICIOS
+====================================== */
+
+.benefits {
+  min-height: 80px;
+  padding: 20px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+  border-bottom: 1px solid #e9e5de;
+}
+
+.benefits span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+/* ======================================
+   5. COLECCIÓN Y PRODUCTOS
+====================================== */
+
+.collection {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 100px 6% 120px;
+  scroll-margin-top: 25px;
+}
+
+.section-heading {
+  margin-bottom: 50px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 25px;
+}
+
+.section-heading h2 {
+  margin: 15px 0 12px;
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(38px, 5vw, 64px);
+  font-weight: 800;
+  letter-spacing: -3px;
+}
+
+.section-heading h2 span {
+  color: #9f7850;
+}
+
+.section-heading p {
+  color: #81796d;
+  font-size: 14px;
+}
+
+.collection-index {
+  padding-bottom: 14px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 25px;
+}
+
+.product-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #eeeae3;
+  background: white;
+  transition:
+    box-shadow 0.25s,
+    transform 0.25s;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 18px 38px rgb(36 34 30 / 8%);
+}
+
+.product-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: contain;
+  background: #f2f0ec;
+}
+
+.product-card h3 {
+  margin: 22px 19px 8px;
+  font-family: "Manrope", sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.product-card p {
+  margin: 0 19px 14px;
+  color: #777168;
+  font-size: 14px;
+}
+
+.product-card button {
+  width: calc(100% - 38px);
+  min-height: 49px;
+  margin: 5px 19px 21px;
+  border: none;
+  border-radius: 2px;
+  background: #24221e;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.product-card button:hover:not(:disabled) {
+  background: #9f7850;
+}
+
+.product-card button:disabled {
+  background: #b2aca3;
+  cursor: not-allowed;
+}
+
+/* ======================================
+   6. MENSAJES DE LA TIENDA
+====================================== */
+
+.store-notice {
+  padding: 45px 25px;
+  border: 1px solid #e9e5de;
+  background: white;
+  text-align: center;
+  color: #625e57;
+  line-height: 1.6;
+}
+
+.store-notice-error {
+  border-color: #e1a1a1;
+  background: #fdeaea;
+}
+
+.store-notice button {
+  margin-top: 12px;
+  padding: 12px 25px;
+  border: 0;
+  background: #24221e;
+  color: white;
+}
+
+.payment-message {
+  margin-bottom: 32px;
+  padding: 23px 26px;
+  border: 1px solid;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+.payment-message p {
+  margin: 8px 0;
+}
+
+.payment-message small {
+  color: #625e57;
+}
+
+.payment-success {
+  border-color: #9ad5a8;
+  background: #e8f7ec;
+}
+
+.payment-error {
+  border-color: #e1a1a1;
+  background: #fdeaea;
+}
+
+/* ======================================
+   7. NOSOTROS Y FOOTER
+====================================== */
+
+.about-banner {
+  padding: 100px 25px;
+  background: #292720;
+  color: white;
+  text-align: center;
+}
+
+.about-banner h2 {
+  max-width: 750px;
+  margin: 24px auto;
+  font-family: "Manrope", sans-serif;
+  font-size: clamp(34px, 5vw, 65px);
+  letter-spacing: -2px;
+}
+
+.about-banner p {
+  color: #c8c1b6;
+  line-height: 1.7;
+}
+
+.about-banner a {
+  display: inline-block;
+  margin-top: 25px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid currentColor;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.site-footer {
+  min-height: 160px;
+  padding: 35px 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+  background: #f5f1ea;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-brand strong {
+  font-family: "Manrope", sans-serif;
+  font-size: 40px;
+  letter-spacing: -4px;
+}
+
+.footer-brand span,
+.site-footer > span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.site-footer p {
+  color: #777168;
+  font-size: 12px;
+}
+
+/* ======================================
+   8. TABLETS
+====================================== */
+
+@media (max-width: 900px) {
+  .site-header {
+    min-height: 75px;
+    padding: 15px 5%;
+  }
+
+  .main-nav {
+    gap: 18px;
+  }
+
+  .hero,
+  .hero-content,
+  .hero-art {
+    min-height: 500px;
+  }
+
+  .hero-content {
+    padding: 65px 8% 40px;
+  }
+
+  .hero h1 {
+    font-size: clamp(46px, 7vw, 75px);
+    letter-spacing: -4px;
+  }
+
+  .art-ring {
+    width: 280px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ======================================
+   9. MÓVILES
+====================================== */
+
+@media (max-width: 600px) {
+  .announcement {
+    font-size: 8px;
+    letter-spacing: 1.5px;
+  }
+
+  .site-header {
+    min-height: 0;
+    padding: 16px 5%;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .brand {
+    font-size: 32px;
+  }
+
+  .main-nav {
+    order: 3;
+    width: 100%;
+    padding-top: 14px;
+    justify-content: center;
+    gap: 25px;
+    border-top: 1px solid #e9e5de;
+  }
+
+  .main-nav a {
+    font-size: 12px;
+  }
+
+  .header-actions {
+    min-width: 0;
+  }
+
+  .header-cart-button {
+    padding: 9px 12px;
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-content {
+    min-height: 465px;
+    padding: 60px 7% 35px;
+  }
+
+  .hero h1 {
+    font-size: clamp(55px, 12vw, 80px);
+  }
+
+  .hero-art {
+    min-height: 320px;
+  }
+
+  .art-ring {
+    width: 240px;
+  }
+
+  .art-letter {
+    font-size: 190px;
+  }
+
+  .art-label {
+    bottom: 28px;
+  }
+
+  .benefits {
+    gap: 15px;
+    padding: 25px 5%;
+  }
+
+  .benefits span {
+    font-size: 9px;
+  }
+
+  .collection {
+    padding: 65px 5%;
+  }
+
+  .section-heading {
+    margin-bottom: 35px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .section-heading h2 {
+    font-size: 43px;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-banner {
+    padding: 75px 7%;
+  }
+
+  .site-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* ======================================
+   AJUSTES DEL REDISEÑO G STORE
+====================================== */
+
+/* Portada más compacta */
+.hero,
+.hero-content,
+.hero-art {
+  min-height: 420px;
+}
+
+.hero-content {
+  padding: 65px 8% 35px 12%;
+}
+
+.hero h1 {
+  margin: 22px 0 16px;
+  font-size: clamp(48px, 5.7vw, 82px);
+  letter-spacing: -4px;
+}
+
+.hero-content > p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.btn-primary {
+  margin-top: 24px;
+}
+
+.hero-footnote {
+  padding-top: 24px;
+}
+
+/* Colección más cercana a la portada */
+.collection {
+  padding: 65px 6% 85px;
+}
+
+.section-heading {
+  margin-bottom: 32px;
+}
+
+/* Las tarjetas no deben ocupar todo el ancho
+   cuando únicamente tenemos un producto */
+.product-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 320px));
+  justify-content: start;
+  gap: 24px;
+}
+
+.product-card {
+  width: 100%;
+}
+
+.product-card img {
+  aspect-ratio: 4 / 4.5;
+}
+
+/* Versión móvil */
+@media (max-width: 600px) {
+  .hero,
+  .hero-content {
+    min-height: 0;
+  }
+
+  .hero-content {
+    padding: 55px 7% 40px;
+  }
+
+  .hero-art {
+    min-height: 250px;
+  }
+
+  .collection {
+    padding: 50px 5% 70px;
+  }
+
+  .product-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Tarjeta de producto */
+
+.product-price {
+  margin: 0 19px 12px;
+  color: #24221e;
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.product-card button {
+  display: block;
+  margin-top: 18px;
+}
+
+.product-card button:focus-visible,
+.header-cart-button:focus-visible {
+  outline: 3px solid #9f7850;
+  outline-offset: 3px;
+}
+
+/* ======================================
+   G STORE - TARJETA DE PRODUCTO
+====================================== */
+
+.product-card {
+  max-width: 340px;
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #eae5dd;
+  background: #ffffff;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(36, 34, 30, 0.08);
+}
+
+/* Imagen */
+
+.product-image {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 4.5;
+  overflow: hidden;
+  background: #f0ece5;
+}
+
+.product-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image img {
+  transform: scale(1.035);
+}
+
+.product-image-placeholder {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  background: #dfd6c9;
+}
+
+.product-image-placeholder span {
+  color: #f9f6f0;
+  font-family: "Manrope", sans-serif;
+  font-size: 120px;
+  font-weight: 800;
+  letter-spacing: -12px;
+}
+
+/* Etiqueta de disponibilidad */
+
+.product-badge {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 1;
+  padding: 8px 11px;
+  background: #ffffff;
+  color: #24221e;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.product-badge-soldout {
+  background: #24221e;
+  color: #ffffff;
+}
+
+/* Información */
+
+.product-info {
+  padding: 23px 20px 21px;
+}
+
+.product-category {
+  color: #928575;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.product-info h3 {
+  margin: 12px 0 9px;
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.product-info .product-price {
+  margin: 0 0 20px;
+  color: #24221e;
+  font-family: "Manrope", sans-serif;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+/* Botón */
+
+.product-info .add-to-cart-button {
+  display: block;
+  width: 100%;
+  min-height: 50px;
+  margin: 0;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 2px;
+  background: #24221e;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.product-info .add-to-cart-button:hover:not(:disabled) {
+  background: #9f7850;
+}
+
+.product-info .add-to-cart-button:disabled {
+  background: #b5afa6;
+  cursor: not-allowed;
+}
+
+.product-info .add-to-cart-button:focus-visible {
+  outline: 3px solid #9f7850;
+  outline-offset: 3px;
 }
