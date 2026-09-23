@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
+import { saveOrder } from "./orderRepository.js";
 
 import {
   createMerchantParameters,
@@ -125,6 +126,10 @@ app.post("/api/checkout", (req, res) => {
       order: orderId,
       merchantParameters,
     });
+    // Guardar permanentemente el pedido y sus productos.
+    saveOrder(order);
+
+    console.log(`Pedido ${orderId} guardado en SQLite`);
 
     console.log("Pedido preparado:", order);
 
