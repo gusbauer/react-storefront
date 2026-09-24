@@ -55,6 +55,20 @@ app.post("/api/checkout", (req, res) => {
         message: "El carrito está vacío",
       });
     }
+    // Comprobar que todos los productos utilizan EUR.
+    const invalidCurrencyItem = cart.find((item) => {
+      const currency = item.variants?.nodes?.[0]?.price?.currencyCode;
+
+      return currency !== "EUR";
+    });
+
+    if (invalidCurrencyItem) {
+      return res.status(400).json({
+        ok: false,
+        message:
+          "G Store solo permite pagos en EUR. Revisa la moneda configurada en Shopify.",
+      });
+    }
 
     // 2. Calcular total
     const total = cart.reduce((sum, item) => {
