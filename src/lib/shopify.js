@@ -5,27 +5,39 @@ const SHOPIFY_ENDPOINT = "/shopify-api/api/2026-07/graphql.json";
 export async function getProducts() {
   const query = `
     query {
-      products(first: 10, query: "title:Camiseta G Store") {
+      products(
+        first: 10
+        query: "title:Camiseta G Store"
+      ) {
         nodes {
           id
           title
           handle
           availableForSale
+
+          images(first: 1) {
+            nodes {
+              url
+              altText
+            }
+          }
+
           variants(first: 1) {
             nodes {
-                id
-                price {
-                    amount
+              id
+              price {
+                amount
                 currencyCode
-    }
-  }
-}
+              }
+            }
+          }
         }
       }
     }
   `;
 
   console.log("Token existe:", Boolean(STOREFRONT_TOKEN));
+
   console.log("Longitud token:", STOREFRONT_TOKEN?.length);
 
   const response = await fetch(SHOPIFY_ENDPOINT, {
