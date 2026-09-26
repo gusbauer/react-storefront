@@ -9,6 +9,7 @@ import {
   getOrder,
   getOrderWithItems,
   updatePaymentStatus,
+  getSalesSummary,
 } from "./orderRepository.js";
 
 import {
@@ -394,6 +395,28 @@ app.get("/api/orders/:orderId", (req, res) => {
     ok: true,
     order,
   });
+});
+
+// =====================================
+// ANALYTICS SUMMARY
+// =====================================
+
+app.get("/api/analytics/summary", (req, res) => {
+  try {
+    const summary = getSalesSummary();
+
+    return res.json({
+      ok: true,
+      summary,
+    });
+  } catch (error) {
+    console.error("Analytics summary error:", error);
+
+    return res.status(500).json({
+      ok: false,
+      message: "Error obteniendo el resumen de ventas",
+    });
+  }
 });
 
 // =====================================
