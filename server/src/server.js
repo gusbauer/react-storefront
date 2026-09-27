@@ -10,6 +10,8 @@ import {
   getOrderWithItems,
   updatePaymentStatus,
   getSalesSummary,
+  getProductSales,
+  getDailySales,
 } from "./orderRepository.js";
 
 import {
@@ -418,7 +420,49 @@ app.get("/api/analytics/summary", (req, res) => {
     });
   }
 });
+// =====================================
+// ANALYTICS BY PRODUCT
+// =====================================
 
+app.get("/api/analytics/products", (req, res) => {
+  try {
+    const products = getProductSales();
+
+    return res.json({
+      ok: true,
+      products,
+    });
+  } catch (error) {
+    console.error("Product analytics error:", error);
+
+    return res.status(500).json({
+      ok: false,
+      message: "Error obteniendo ventas por producto",
+    });
+  }
+});
+
+// =====================================
+// ANALYTICS BY DAY
+// =====================================
+
+app.get("/api/analytics/daily", (req, res) => {
+  try {
+    const daily = getDailySales();
+
+    return res.json({
+      ok: true,
+      daily,
+    });
+  } catch (error) {
+    console.error("Daily analytics error:", error);
+
+    return res.status(500).json({
+      ok: false,
+      message: "Error obteniendo ventas diarias",
+    });
+  }
+});
 // =====================================
 // START SERVER
 // =====================================

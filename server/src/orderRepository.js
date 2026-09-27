@@ -231,3 +231,60 @@ export function getSalesSummary() {
     averageTicketCents,
   };
 }
+export function getProductSales() {
+  return db
+    .prepare(
+      `
+    SELECT
+      oi.product_id AS productId,
+      oi.title AS productName,
+
+      SUM(oi.quantity) AS unitsSold,
+
+      SUM(
+        oi.quantity * oi.unit_price_cents
+      ) AS revenueCents,
+
+      COUNT(
+        DISTINCT oi.order_id
+      ) AS ordersCount
+
+    FROM order_items oi
+
+    INNER JOIN orders o
+      ON o.order_id = oi.order_id
+
+    WHERE o.status = 'PAID'
+
+    GROUP BY
+      oi.product_id,
+      oi.title
+
+    ORDER BY revenueCents DESC
+  `,
+    )
+    .all();
+}
+
+export function getDailySales() {
+  return db
+    .prepare(
+      `
+    SELECT
+      DATE(created_at) AS date,
+
+      COUNT(*) AS paidOrders,
+
+      SUM(amount_cents) AS revenueCents
+
+    FROM orders
+
+    WHERE status = 'PAID'
+
+    GROUP BY DATE(created_at)
+
+    ORDER BY date ASC
+  `,
+    )
+    .all();
+}
