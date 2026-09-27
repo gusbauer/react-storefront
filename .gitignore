@@ -34,3 +34,4 @@ server/data/*.db-shm
 server/data/*.db-wal
 server/data/*.sqlite
 server/data/*.sqlite3
+server/analytics/exports/
