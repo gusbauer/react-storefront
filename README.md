@@ -3,6 +3,38 @@
 G Store es un proyecto de e-commerce headless desarrollado como proyecto personal para integrar frontend, backend, APIs, pagos, bases de datos y análisis de datos en una única aplicación.
 
 El proyecto conecta una tienda Shopify con un frontend desarrollado en React, un backend propio en Node.js y Express, pagos mediante Redsys Sandbox, persistencia con SQLite y una pipeline de analítica utilizando Python, Pandas, Excel y Power BI.
+## Demo visual
+
+A continuación se muestran algunas capturas del funcionamiento de G Store, incluyendo el frontend, el flujo de compra, la integración de pagos y la parte de analítica.
+
+### Storefront principal
+
+![Storefront principal](docs/images/storefront-home.png)
+
+### Vista adicional del storefront
+
+![Segunda vista del storefront](docs/images/storefront-home2.png)
+
+### Carrito de compra
+
+![Carrito de compra](docs/images/cart.png)
+
+### Pago autorizado con Redsys Sandbox
+
+![Pago autorizado en Redsys](docs/images/redsys-payment-success.png)
+
+### Endpoint de analítica
+
+![Resumen de analytics](docs/images/api-summary.png)
+
+### Informe en Excel
+
+![Informe de ventas en Excel](docs/images/excel-report.png)
+
+### Dashboard de Power BI
+
+![Dashboard de ventas en Power BI](docs/images/imagepowerbi-dashboard.png)
+
 
 ---
 
